@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func main() {
+func packets() {
 	// Create a new Docker client
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {

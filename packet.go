@@ -43,22 +43,21 @@ func packets() {
 
 func getPacket(packet []string) {}
 
-func runPacket() {
-
-}
-
-type Packet struct {
+type Content struct {
     ID   string `yaml:"id"`
     Name string `yaml:"name"`
 }
 
 func writePacketToBundle(containerID string, containerName string, bundlefile string) error {
-    p1 := Packet{
+    p1 := Content{
         ID:   containerID,
         Name: containerName,
     }
 
-    yamlData, err := yaml.Marshal(&p1)
+    yamlData, err := yaml.Marshal(map[string]interface{}{
+		"Packet": p1,
+	})
+	
     if err != nil {
         return fmt.Errorf("error marshaling Packet: %w", err)
     }
@@ -69,4 +68,8 @@ func writePacketToBundle(containerID string, containerName string, bundlefile st
     }
 
     return nil
+}
+
+func RunPacket() {
+
 }

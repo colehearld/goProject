@@ -1,10 +1,13 @@
+//File for creating packets, which host a collection of containers. Once the packets are created, 
+//they should be sent to the bundle.
 package main
 
 import (
 	"context"
 	"fmt"
 	"os"
-	"log"
+	"io/ioutil"
+	"gopkg.in/yaml.v2"
 
 	"github.com/docker/docker/client"
 )
@@ -20,12 +23,10 @@ func packets() {
 	// Create a new context
 	ctx := context.Background()
 
-	// Prompt the user to enter the name of a container
 	var containerName string
 	fmt.Print("Enter the name of a Docker container: ")
 	fmt.Scanln(&containerName)
 
-	// Get information about the container
 	containerInfo, err := cli.ContainerInspect(ctx, containerName)
 	if err != nil {
 		fmt.Println("Failed to get information about container:", err)
@@ -36,31 +37,36 @@ func packets() {
 	packet := make([]string, 0) 
 	packet = append(packet, containerInfo.ID)
 
-	// Print the container ID
-	fmt.Println("Stored container ID:", containerInfo.ID)
-
-	writePacketToTxt(containerInfo.ID)
+	writePacketToBundle(containerInfo.ID, containerName, "bundlefile.yaml")
 
 }
 
-func displayPacket(packet []string) { fmt.Println(packet) }
+func getPacket(packet []string) {}
 
-func getRunningPackets() {}
+func runPacket() {
 
-func writePacketToTxt(containerInfo string){
-	f, err := os.Create("container_ids.txt")
+}
 
+type Packet struct {
+    ID   string `yaml:"id"`
+    Name string `yaml:"name"`
+}
+
+func writePacketToBundle(containerID string, containerName string, bundlefile string) error {
+    p1 := Packet{
+        ID:   containerID,
+        Name: containerName,
+    }
+
+    yamlData, err := yaml.Marshal(&p1)
     if err != nil {
-        log.Fatal(err)
+        return fmt.Errorf("error marshaling Packet: %w", err)
     }
 
-    defer f.Close()
-
-    _, err2 := f.WriteString(containerInfo)
-
-    if err2 != nil {
-        log.Fatal(err2)
+    err = ioutil.WriteFile(bundlefile, yamlData, 0644)
+    if err != nil {
+        return fmt.Errorf("error writing YAML data to file: %w", err)
     }
 
-    fmt.Println("done")
+    return nil
 }
